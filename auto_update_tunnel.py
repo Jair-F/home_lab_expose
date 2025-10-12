@@ -5,13 +5,22 @@ import subprocess
 import threading
 import time
 
+import box
+import yaml
+
 import tools.update_pizza_redirect as pizza
 
-HOST_URL = 'localhost'
-PORT = '80'
+CONFIG = None
 
-regex_match_url = 'https://[0-9a-zA-Z-]*.trycloudflare.com'
-tunnel_command = ['cloudflared', 'tunnel', '--url', F'{HOST_URL}:{PORT}']
+REGEX_MATCH_URL = 'https://[0-9a-zA-Z-]*.trycloudflare.com'
+TUNNEL_COMMAND = None
+
+
+def read_config():
+    global CONFIG, TUNNEL_COMMAND
+    with open('config/config.yaml') as file:
+        CONFIG = box.Box(yaml.safe_load(file))
+        TUNNEL_COMMAND = ['cloudflared', 'tunnel', '--url', F'{CONFIG.local_host}:{CONFIG.local_port}']
 
 
 class TunnelMonitor():
@@ -84,9 +93,11 @@ class TunnelMonitor():
         # print(F"got output: {output}")
         match = re.search(self._url_regex_match, output)
         if match is not None:
-            self.url = match.group()
-            self.url_changed = True
-            print(F'found url: {self.url}')
+            found_url = match.group()
+            if found_url != self.url:
+                self.url = found_url
+                self.url_changed = True
+                print(F'found new url: {self.url}')
 
     def get_url(self) -> str:
         self.url_changed = False
@@ -106,14 +117,10 @@ class TunnelMonitor():
                     self._handle_stderr(output)
 
                 if self.url_changed:
-                    print('updateing redirect')
-                    temp = self.get_url()
-                    tk = 'rpa_dtylgrntvszoba9so5joeeyenut1gjkwcmfgk1wm2ilndagvm5huihf6h58ugxrl'
-                    REQUEST_HEADERS = {
-                        'Authorization': F'Bearer {tk}',
-                        'Content-Type': 'application/json',
-                    }
-                    pizza.update_redirect(1572326897, REQUEST_HEADERS, 'laern.duckdns.org', temp)
+                    print('updateing redirect: ', end='')
+                    new_url = self.get_url()
+                    while not pizza.update_redirect(CONFIG.pizza_api_key, 1572326897, 'laern.duckdns.org', new_url):
+                        time.sleep(1)
 
                 time.sleep(1)
         finally:
@@ -122,6 +129,7 @@ class TunnelMonitor():
 
 
 if __name__ == '__main__':
-    tunnel = TunnelMonitor(tunnel_command, regex_match_url)
+    read_config()
+    tunnel = TunnelMonitor(TUNNEL_COMMAND, REGEX_MATCH_URL)
 
     tunnel.runBlocking()

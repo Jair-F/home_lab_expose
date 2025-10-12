@@ -12,29 +12,30 @@ https://redirect.pizza/api/v1
 
 # REQUEST_URL = "https://duckdns.org/update/{domain}/{token}[/{ip_addr}]"
 
-def build_header(token:str) -> str:
+def build_header(token: str) -> str:
     REQUEST_HEADERS = {
         'Authorization': F'Bearer {token}',
         'Content-Type': 'application/json',
     }
     return REQUEST_HEADERS
 
-def list_redirects(token, entries=100) -> int:
+
+def list_redirects(token, entries=100) -> bool:
     REQUEST_URL = F'https://redirect.pizza/api/v1/redirects?page=1&per_page={entries}'
     response = requests.get(REQUEST_URL, headers=build_header(token))
     return_code = response.status_code
     if return_code == 200:
         if 'application/json' in response.headers.get('Content-Type', ''):
             response = response.json()
-            pretty_response = json.dumps(response, indent=2)
-            print(pretty_response)
+            print(json.dumps(response, indent=2), end='\n\n')
+            return True
     else:
         print(F'ERROR CODE: {response.status_code}')
         print(response.text)
-    return return_code
+    return False
 
 
-def create_redirect(token, src_url, dest_url, notes='', tag='') -> int:
+def create_redirect(token, src_url, dest_url, notes='', tag='') -> tuple:
     REQUEST_URL = 'https://redirect.pizza/api/v1/redirects'
     data = F"""{{
         "sources": [
@@ -59,18 +60,18 @@ def create_redirect(token, src_url, dest_url, notes='', tag='') -> int:
     if return_code == 201:
         if 'application/json' in response.headers.get('Content-Type', ''):
             answer = response.json()
-            pretty_response = json.dumps(answer, indent=2)
-            print(pretty_response)
+            print(json.dumps(response, indent=2), end='\n\n')
             created_pipe_id = answer['data']['id']
             print(F'created redirect with id: {created_pipe_id}')
+            return (True, created_pipe_id)
     else:
         print(F'ERROR CODE: {return_code}')
         print(response.text)
 
-    return return_code, created_pipe_id
+    return (False, created_pipe_id)
 
 
-def update_redirect(token, id, src_url, dest_url, notes='', tag='') -> int:
+def update_redirect(token, id, src_url, dest_url, notes='', tag='') -> bool:
     REQUEST_URL = F'https://redirect.pizza/api/v1/redirects/{id}'
     data = """{{
         "sources": [
@@ -92,14 +93,15 @@ def update_redirect(token, id, src_url, dest_url, notes='', tag='') -> int:
     if return_code == 200:
         if 'application/json' in response.headers.get('Content-Type', ''):
             response = response.json()
-            print(response)
+            print(json.dumps(response, indent=2), end='\n\n')
+            return True
     else:
         print(F'ERROR CODE: {return_code}')
         print(response.text)
-    return return_code
+    return False
 
 
-def delete_redirect(token, id) -> int:
+def delete_redirect(token, id) -> bool:
     REQUEST_URL = F'https://redirect.pizza/api/v1/redirects/{id}'
 
     response = requests.delete(REQUEST_URL, headers=build_header(token))
@@ -107,12 +109,13 @@ def delete_redirect(token, id) -> int:
     if return_code == 204:
         if 'application/json' in response.headers.get('Content-Type', ''):
             response = response.json()
-            print(response)
+            print(json.dumps(response, indent=2), end='\n\n')
+            return True
     else:
         print(F'ERROR CODE: {return_code}')
         print(response.text)
 
-    return return_code
+    return False
 
 
 if __name__ == '__main__':

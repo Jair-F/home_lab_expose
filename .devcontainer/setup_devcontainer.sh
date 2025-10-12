@@ -1,6 +1,7 @@
 #!/bin/sh
 
-apk add git bash fish
+apt install -y apache2
+/etc/init.d/apache2 start
 
 git config --global --add safe.directory .
 git config --global user.name Jair
