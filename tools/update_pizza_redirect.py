@@ -9,14 +9,19 @@ https://redirect.pizza/docs
 https://redirect.pizza/api/v1
 """
 
-tk = 'rpa_dtylgrntvszoba9so5joeeyenut1gjkwcmfgk1wm2ilndagvm5huihf6h58ugxrl'
 
 # REQUEST_URL = "https://duckdns.org/update/{domain}/{token}[/{ip_addr}]"
 
+def build_header(token:str) -> str:
+    REQUEST_HEADERS = {
+        'Authorization': F'Bearer {token}',
+        'Content-Type': 'application/json',
+    }
+    return REQUEST_HEADERS
 
-def list_redirects(header, entries=100) -> int:
+def list_redirects(token, entries=100) -> int:
     REQUEST_URL = F'https://redirect.pizza/api/v1/redirects?page=1&per_page={entries}'
-    response = requests.get(REQUEST_URL, headers=header)
+    response = requests.get(REQUEST_URL, headers=build_header(token))
     return_code = response.status_code
     if return_code == 200:
         if 'application/json' in response.headers.get('Content-Type', ''):
@@ -29,7 +34,7 @@ def list_redirects(header, entries=100) -> int:
     return return_code
 
 
-def create_redirect(header, src_url, dest_url, notes='', tag='') -> int:
+def create_redirect(token, src_url, dest_url, notes='', tag='') -> int:
     REQUEST_URL = 'https://redirect.pizza/api/v1/redirects'
     data = F"""{{
         "sources": [
@@ -48,7 +53,7 @@ def create_redirect(header, src_url, dest_url, notes='', tag='') -> int:
     }}"""
     # data = data.format(src_url=src_url, dest_url=dest_url, notes=notes, tag=tag)
     # print(data)
-    response = requests.post(REQUEST_URL, headers=header, data=data)
+    response = requests.post(REQUEST_URL, headers=build_header(token), data=data)
     return_code = response.status_code
     created_pipe_id = None
     if return_code == 201:
@@ -65,7 +70,7 @@ def create_redirect(header, src_url, dest_url, notes='', tag='') -> int:
     return return_code, created_pipe_id
 
 
-def update_redirect(header, id, src_url, dest_url, notes='', tag='') -> int:
+def update_redirect(token, id, src_url, dest_url, notes='', tag='') -> int:
     REQUEST_URL = F'https://redirect.pizza/api/v1/redirects/{id}'
     data = """{{
         "sources": [
@@ -82,7 +87,7 @@ def update_redirect(header, id, src_url, dest_url, notes='', tag='') -> int:
         "notes": "{notes}"
     }}"""
     data = data.format(src_url=src_url, dest_url=dest_url, notes=notes, tag=tag)
-    response = requests.put(REQUEST_URL, headers=header, data=data)
+    response = requests.put(REQUEST_URL, headers=build_header(token), data=data)
     return_code = response.status_code
     if return_code == 200:
         if 'application/json' in response.headers.get('Content-Type', ''):
@@ -94,10 +99,10 @@ def update_redirect(header, id, src_url, dest_url, notes='', tag='') -> int:
     return return_code
 
 
-def delete_redirect(header, id) -> int:
+def delete_redirect(token, id) -> int:
     REQUEST_URL = F'https://redirect.pizza/api/v1/redirects/{id}'
 
-    response = requests.delete(REQUEST_URL, headers=header)
+    response = requests.delete(REQUEST_URL, headers=build_header(token))
     return_code = response.status_code
     if return_code == 204:
         if 'application/json' in response.headers.get('Content-Type', ''):
@@ -129,26 +134,14 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    REQUEST_HEADERS = {
-        'Authorization': F'Bearer {args.token}',
-        'Content-Type': 'application/json',
-    }
     if args.list:
-        list_redirects(REQUEST_HEADERS)
+        list_redirects(args.token)
     elif args.update:
         update_redirect(
-            REQUEST_HEADERS, args.id, args.src_url,
+            args.token, args.id, args.src_url,
             args.dest_url, args.notes, args.tag,
         )
     elif args.create:
-        create_redirect(REQUEST_HEADERS, args.src_url, args.dest_url, args.notes, args.tag)
+        create_redirect(args.token, args.src_url, args.dest_url, args.notes, args.tag)
     elif args.delete:
-        delete_redirect(REQUEST_HEADERS, args.id)
-
-
-"""
-laern.duckdns.org
-dest: google.com
-id: 1572326897
-ip: 89.106.200.1
-"""
+        delete_redirect(args.token, args.id)
