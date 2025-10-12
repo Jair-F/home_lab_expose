@@ -1,6 +1,7 @@
 #!/bin/python3
 import queue
 import re
+import signal
 import subprocess
 import threading
 import time
@@ -65,8 +66,9 @@ class TunnelMonitor():
     def _stop(self) -> None:
         if self._process is not None:
             self._process.terminate()
-            self._process.wait(timeout=2)
+            returncode = self._process.wait(timeout=2)
             self._process.kill()
+            print(F'process terminated with returncode: {returncode}')
 
         if self._stderr_watch_thread is not None:
             self._stderr_watch_thread.join()
@@ -124,7 +126,7 @@ class TunnelMonitor():
             ):
                 time.sleep(1)
 
-    def runBlocking(self):
+    def run_blocking(self):
         self._start()
 
         try:
@@ -144,11 +146,30 @@ class TunnelMonitor():
                 time.sleep(1)
         finally:
             self._stop()
-            print(F'process terminated with returncode: {self._process.returncode}')
+
+    def shutdown(self):
+        """
+            delete all redirect urls
+            stop all threads.
+        """
+        print('shutting down...')
+        if self.pizza_id is not None:
+            print(F'deleting pizza : {self.pizza_id}')
+            while not pizza.delete_redirect(CONFIG.pizza_api_key, self.pizza_id):
+                time.sleep(0.2)
+            self.pizza_id = None
+        self._stop()
+        print('byyye...')
 
 
 if __name__ == '__main__':
     read_config()
     tunnel = TunnelMonitor(TUNNEL_COMMAND, REGEX_MATCH_URL)
 
-    tunnel.runBlocking()
+    def shutdown_gracefully(signum, frame):
+        tunnel.shutdown()
+
+    signal.signal(signal.SIGTERM, shutdown_gracefully)
+    signal.signal(signal.SIGINT, shutdown_gracefully)
+
+    tunnel.run_blocking()
