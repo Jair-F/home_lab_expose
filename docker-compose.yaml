@@ -1,0 +1,9 @@
+services:
+  home_lab_expose:
+    image: jairf/home_lab_expose:latest
+    container_name: home_lab_expose
+    restart: unless-stopped
+    # ports:
+    #   - 80:80
+    volumes:
+      - ./config:/config
