@@ -56,19 +56,22 @@ def create_redirect(token, src_url, dest_url, notes='', tag='') -> tuple:
     # print(data)
     response = requests.post(REQUEST_URL, headers=build_header(token), data=data)
     return_code = response.status_code
-    created_pipe_id = None
+    return_pizza_id = None
     if return_code == 201:
         if 'application/json' in response.headers.get('Content-Type', ''):
-            answer = response.json()
+            response = response.json()
             print(json.dumps(response, indent=2), end='\n\n')
-            created_pipe_id = answer['data']['id']
-            print(F'created redirect with id: {created_pipe_id}')
-            return (True, created_pipe_id)
+            return_pizza_id = response['data']['id']
+            print(F'created redirect with id: {return_pizza_id}')
+            return (True, return_pizza_id)
     else:
-        print(F'ERROR CODE: {return_code}')
-        print(response.text)
+        if 'application/json' in response.headers.get('Content-Type', ''):
+            response = response.json()
+            print(F'ERROR CODE: {return_code}')
+            print(json.dumps(response, indent=2), end='\n\n')
+            return_pizza_id = response['errors']['redirect_id'][0]
 
-    return (False, created_pipe_id)
+    return (False, return_pizza_id)
 
 
 def update_redirect(token, id, src_url, dest_url, notes='', tag='') -> bool:

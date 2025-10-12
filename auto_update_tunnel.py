@@ -32,6 +32,7 @@ class TunnelMonitor():
         self._process = None
         self._stderr_watch_thread = None
         self._run = True
+        self.pizza_id = None
         self._out_queue = queue.Queue()
 
     def _watch_stderr(pipe, queue) -> None:
@@ -99,9 +100,29 @@ class TunnelMonitor():
                 self.url_changed = True
                 print(F'found new url: {self.url}')
 
-    def get_url(self) -> str:
+    def _get_url(self) -> str:
         self.url_changed = False
         return self.url
+
+    def _change_url(self, new_url):
+        if self.pizza_id is None:
+            success = False
+            while not success:
+                (success, pizza_id) = pizza.create_redirect(
+                    CONFIG.pizza_api_key,
+                    CONFIG.duckdns_domain, new_url, notes='home_lab_expose',
+                )
+                if not success:
+                    print(F'trying to delete remaining redirect with id: {pizza_id}')
+                    pizza.delete_redirect(CONFIG.pizza_api_key, pizza_id)
+                time.sleep(0.5)
+            self.pizza_id = pizza_id
+        else:
+            while not pizza.update_redirect(
+                CONFIG.pizza_api_key, self.pizza_id,
+                CONFIG.duckdns_domain, new_url, notes='home_lab_expose',
+            ):
+                time.sleep(1)
 
     def runBlocking(self):
         self._start()
@@ -117,10 +138,8 @@ class TunnelMonitor():
                     self._handle_stderr(output)
 
                 if self.url_changed:
-                    print('updateing redirect: ', end='')
-                    new_url = self.get_url()
-                    while not pizza.update_redirect(CONFIG.pizza_api_key, 1572326897, 'laern.duckdns.org', new_url):
-                        time.sleep(1)
+                    print('updateing redirect to new url: ', end='')
+                    self._change_url(self._get_url())
 
                 time.sleep(1)
         finally:
