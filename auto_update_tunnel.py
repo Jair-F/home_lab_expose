@@ -23,7 +23,7 @@ def read_config():
     with open('config/config.yaml', encoding='utf-8') as file:
         CONFIG = box.Box(yaml.safe_load(file))
         TUNNEL_COMMAND = \
-            ['cloudflared', 'tunnel', '--url', F'{CONFIG.local_host}:{CONFIG.local_port}']
+            ['cloudflared', 'tunnel', '--no-tls-verify', '--url', F'{CONFIG.local_host}:{CONFIG.local_port}']
 
 
 class TunnelMonitor():
