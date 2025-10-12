@@ -16,7 +16,7 @@ if __name__ == '__main__':
         if response.status_code == 200:
             print('site is up')
             sys.exit(0)
-    except Exception as _:
+    except requests.exceptions.RequestException:
         pass
 
     print('site is down')

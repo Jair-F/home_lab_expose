@@ -5,6 +5,7 @@ import signal
 import subprocess
 import threading
 import time
+from typing import IO
 
 import box
 import yaml
@@ -19,9 +20,10 @@ TUNNEL_COMMAND = None
 
 def read_config():
     global CONFIG, TUNNEL_COMMAND
-    with open('config/config.yaml') as file:
+    with open('config/config.yaml', encoding='utf-8') as file:
         CONFIG = box.Box(yaml.safe_load(file))
-        TUNNEL_COMMAND = ['cloudflared', 'tunnel', '--url', F'{CONFIG.local_host}:{CONFIG.local_port}']
+        TUNNEL_COMMAND = \
+            ['cloudflared', 'tunnel', '--url', F'{CONFIG.local_host}:{CONFIG.local_port}']
 
 
 class TunnelMonitor():
@@ -36,7 +38,7 @@ class TunnelMonitor():
         self.pizza_id = None
         self._out_queue = queue.Queue()
 
-    def _watch_stderr(pipe, queue) -> None:
+    def _watch_stderr(pipe: IO[str], queue: queue) -> None:
         print('stderr watch started')
         for line in iter(pipe.readline, ''):
             queue.put(line)
@@ -58,7 +60,7 @@ class TunnelMonitor():
         self._run = True
         print('started tunnel')
 
-    def processIsRunning(self) -> bool:
+    def process_is_running(self) -> bool:
         if self._process is None:
             return False
         return self._process.poll() is None
@@ -131,7 +133,7 @@ class TunnelMonitor():
 
         try:
             while self._run:
-                if not self.processIsRunning():
+                if not self.process_is_running():
                     print('not running - restarting')
                     self._restart()
 

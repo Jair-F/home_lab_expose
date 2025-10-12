@@ -4,10 +4,11 @@ import sys
 
 import requests
 
-"""
-https://www.duckdns.org/spec.jsp
-https://duckdns.org/update/{YOURDOMAIN}/{YOURTOKEN}[/{YOURIPADDRESS}]
-"""
+
+# manuals:
+# https://www.duckdns.org/spec.jsp
+# https://duckdns.org/update/{YOURDOMAIN}/{YOURTOKEN}[/{YOURIPADDRESS}]
+
 
 REQUEST_URL = 'https://duckdns.org/update/{domain}/{token}[/{ip_addr}]'
 
