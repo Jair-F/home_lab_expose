@@ -1,3 +1,3 @@
-
-with file as open(file_name, 'r'):
-    
+file_name = 'asdf'
+with open(file_name) as file:
+    pass

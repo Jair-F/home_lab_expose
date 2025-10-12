@@ -1,19 +1,17 @@
 #!/bin/python3
-import requests
-import argparse
-import sys
-import re
 import queue
-import threading
+import re
 import subprocess
+import threading
 import time
+
 import tools.update_pizza_redirect as pizza
 
-HOST_URL = "localhost"
-PORT = "80"
+HOST_URL = 'localhost'
+PORT = '80'
 
-regex_match_url = "https://[0-9a-zA-Z-]*.trycloudflare.com"
-tunnel_command = ["cloudflared",  "tunnel", "--url", F"{HOST_URL}:{PORT}"]
+regex_match_url = 'https://[0-9a-zA-Z-]*.trycloudflare.com'
+tunnel_command = ['cloudflared', 'tunnel', '--url', F'{HOST_URL}:{PORT}']
 
 
 class TunnelMonitor():
@@ -26,23 +24,28 @@ class TunnelMonitor():
         self._stderr_watch_thread = None
         self._run = True
         self._out_queue = queue.Queue()
-        pass
 
     def _watch_stderr(pipe, queue) -> None:
-        print("stderr watch started")
+        print('stderr watch started')
         for line in iter(pipe.readline, ''):
             queue.put(line)
         pipe.close()
-        print("stderr watch ended")
+        print('stderr watch ended')
 
     def _start(self) -> None:
-        self._process = subprocess.Popen(args=self._tunnel_command,
-                                stderr=subprocess.PIPE, #stdout=subprocess.PIPE, stdin=subprocess.PIPE,
-                                text=True)
-        self._stderr_watch_thread = threading.Thread(target=TunnelMonitor._watch_stderr, args=(self._process.stderr, self._out_queue), daemon=True)
+        self._process = subprocess.Popen(
+            args=self._tunnel_command,
+            stderr=subprocess.PIPE,  # stdout=subprocess.PIPE, stdin=subprocess.PIPE,
+            text=True,
+        )
+        self._stderr_watch_thread = threading.Thread(
+            target=TunnelMonitor._watch_stderr, args=(
+                self._process.stderr, self._out_queue,
+            ), daemon=True,
+        )
         self._stderr_watch_thread.start()
         self._run = True
-        print("started tunnel")
+        print('started tunnel')
 
     def processIsRunning(self) -> bool:
         if self._process is None:
@@ -54,7 +57,7 @@ class TunnelMonitor():
             self._process.terminate()
             self._process.wait(timeout=2)
             self._process.kill()
-        
+
         if self._stderr_watch_thread is not None:
             self._stderr_watch_thread.join()
 
@@ -62,10 +65,10 @@ class TunnelMonitor():
         self._process = None
         self._stderr_watch_thread = None
         self._run = False
-        print("stopped tunnel")
-    
+        print('stopped tunnel')
+
     def _restart(self) -> None:
-        print("restarting tunnel")
+        print('restarting tunnel')
         self._stop()
         self._start()
 
@@ -77,14 +80,14 @@ class TunnelMonitor():
             line = None
         return line
 
-    def _handle_stderr(self, output:str) -> None:
+    def _handle_stderr(self, output: str) -> None:
         # print(F"got output: {output}")
         match = re.search(self._url_regex_match, output)
         if match is not None:
             self.url = match.group()
             self.url_changed = True
-            print(F"found url: {self.url}")
-    
+            print(F'found url: {self.url}')
+
     def get_url(self) -> str:
         self.url_changed = False
         return self.url
@@ -103,21 +106,22 @@ class TunnelMonitor():
                     self._handle_stderr(output)
 
                 if self.url_changed:
-                    print("updateing redirect")
+                    print('updateing redirect')
                     temp = self.get_url()
-                    tk = "rpa_dtylgrntvszoba9so5joeeyenut1gjkwcmfgk1wm2ilndagvm5huihf6h58ugxrl"
+                    tk = 'rpa_dtylgrntvszoba9so5joeeyenut1gjkwcmfgk1wm2ilndagvm5huihf6h58ugxrl'
                     REQUEST_HEADERS = {
-                        "Authorization": F"Bearer {tk}",
-                        "Content-Type": "application/json"
+                        'Authorization': F'Bearer {tk}',
+                        'Content-Type': 'application/json',
                     }
-                    pizza.update_redirect(1572326897, REQUEST_HEADERS, "laern.duckdns.org", temp)
+                    pizza.update_redirect(1572326897, REQUEST_HEADERS, 'laern.duckdns.org', temp)
 
                 time.sleep(1)
         finally:
             self._stop()
-            print(F"process terminated with returncode: {self._process.returncode}")
+            print(F'process terminated with returncode: {self._process.returncode}')
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     tunnel = TunnelMonitor(tunnel_command, regex_match_url)
 
     tunnel.runBlocking()
