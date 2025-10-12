@@ -27,7 +27,7 @@ def list_redirects(token, entries=100) -> bool:
         if 'application/json' in response.headers.get('Content-Type', ''):
             response = response.json()
             print(json.dumps(response, indent=2), end='\n\n')
-            return True
+        return True
     else:
         print(F'ERROR CODE: {response.status_code}')
         print(response.text)
@@ -96,7 +96,7 @@ def update_redirect(token, pizza_id, src_url, dest_url, notes='', tag='') -> boo
         if 'application/json' in response.headers.get('Content-Type', ''):
             response = response.json()
             print(json.dumps(response, indent=2), end='\n\n')
-            return True
+        return True
     else:
         print(F'ERROR CODE: {return_code}')
         print(response.text)
@@ -112,7 +112,7 @@ def delete_redirect(token, pizza_id) -> bool:
         if 'application/json' in response.headers.get('Content-Type', ''):
             response = response.json()
             print(json.dumps(response, indent=2), end='\n\n')
-            return True
+        return True
     else:
         print(F'ERROR CODE: {return_code}')
         print(response.text)

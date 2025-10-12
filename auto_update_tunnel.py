@@ -157,8 +157,8 @@ class TunnelMonitor():
         print('shutting down...')
         if self.pizza_id is not None:
             print(F'deleting pizza : {self.pizza_id}')
-            while not pizza.delete_redirect(CONFIG.pizza_api_key, self.pizza_id):
-                time.sleep(0.2)
+            if pizza.delete_redirect(CONFIG.pizza_api_key, self.pizza_id):
+                print(F'success deleting pizza: {self.pizza_id}')
             self.pizza_id = None
         self._stop()
         print('byyye...')
