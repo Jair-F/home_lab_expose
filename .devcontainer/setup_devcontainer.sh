@@ -1,6 +1,6 @@
 #!/bin/sh
 
-apt install -y apache2
+apt install -y apache2 git
 /etc/init.d/apache2 start
 
 git config --global --add safe.directory .
