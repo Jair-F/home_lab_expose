@@ -1,3 +1,4 @@
+import io
 import queue
 import re
 import subprocess
@@ -24,10 +25,10 @@ class TunnelMonitor():
         self._pizza_api_key = pizza_api_key
         self._out_queue = queue.Queue()
 
-    def _watch_stderr(pipe, queue: queue) -> None:
+    def _watch_stderr(self, pipe: io.TextIOWrapper, q: queue.Queue) -> None:
         print('stderr watch started')
         for line in iter(pipe.readline, ''):
-            queue.put(line)
+            q.put(line)
         pipe.close()
         print('stderr watch ended')
 
@@ -39,7 +40,7 @@ class TunnelMonitor():
         )
         self._stderr_watch_thread = threading.Thread(
             target=TunnelMonitor._watch_stderr, args=(
-                self._process.stderr, self._out_queue,
+                self, self._process.stderr, self._out_queue,
             ), daemon=True,
         )
         self._stderr_watch_thread.start()

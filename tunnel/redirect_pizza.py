@@ -11,7 +11,7 @@ import requests
 
 # REQUEST_URL = "https://duckdns.org/update/{domain}/{token}[/{ip_addr}]"
 
-def build_header(token: str) -> dict:
+def build_header(token: str) -> dict[str]:
     request_headers = {
         'Authorization': F'Bearer {token}',
         'Content-Type': 'application/json',
