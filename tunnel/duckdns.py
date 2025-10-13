@@ -10,7 +10,7 @@ import requests
 # https://duckdns.org/update/{YOURDOMAIN}/{YOURTOKEN}[/{YOURIPADDRESS}]
 
 
-REQUEST_URL = 'https://duckdns.org/update/{domain}/{token}[/{ip_addr}]'
+REQUEST_URL = 'https://www.duckdns.org/update?domains={domain}&token={token}&ip={ip_addr}'
 
 
 def update_duckdns_ip(domain: str, auth_token: str, new_ip: str) -> bool:
