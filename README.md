@@ -44,5 +44,6 @@ Expose your home lab services securely to the internet using dynamic DNS and rev
 
 - configure `example_config.yaml` file with your DNS and API-Keys
 - rename the `example_config.yaml` to `config.yaml`
+- its recommended to add the container to a docker network in which only the containers are which he exposes them.
 - run the service with `docker compose up`
 ---
