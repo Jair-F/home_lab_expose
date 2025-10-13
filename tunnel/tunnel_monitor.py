@@ -4,13 +4,26 @@ import re
 import subprocess
 import threading
 import time
+from typing import Optional
 
 import tunnel.redirect_pizza as pizza
 
 
 class TunnelMonitor():
+    _tunnel_command: list[str]
+    _url_regex_match: str
+    url: str | None
+    url_changed: bool
+    _duckdns_subdomain: str
+    _process: subprocess.Popen[str] | None
+    _stderr_watch_thread: Optional[threading.Thread] | None
+    _run: bool
+    pizza_id: int | None
+    _pizza_api_key: str
+    _out_queue: queue.Queue[str]
+
     def __init__(
-        self, tunnel_command: list, url_regex_match: str,
+        self, tunnel_command: list[str], url_regex_match: str,
         duckdns_subdomain: str, pizza_api_key: str,
     ):
         self._tunnel_command = tunnel_command
@@ -25,7 +38,7 @@ class TunnelMonitor():
         self._pizza_api_key = pizza_api_key
         self._out_queue = queue.Queue()
 
-    def _watch_stderr(self, pipe: io.TextIOWrapper, q: queue.Queue) -> None:
+    def _watch_stderr(self, pipe: io.TextIOWrapper, q: queue.Queue[str]) -> None:
         print('stderr watch started')
         for line in iter(pipe.readline, ''):
             q.put(line)
@@ -94,11 +107,11 @@ class TunnelMonitor():
                 self.url_changed = True
                 print(F'TUNNEL {self._duckdns_subdomain}: found new url: {self.url}')
 
-    def _get_url(self) -> str:
+    def _get_url(self) -> str | None:
         self.url_changed = False
         return self.url
 
-    def _change_url(self, new_url):
+    def _change_url(self, new_url: str) -> None:
         if self.pizza_id is None:
             success = False
             while not success:
@@ -118,7 +131,7 @@ class TunnelMonitor():
             ):
                 time.sleep(1)
 
-    def run_blocking(self):
+    def run_blocking(self) -> None:
         self._start()
 
         try:
@@ -142,7 +155,7 @@ class TunnelMonitor():
         finally:
             self._stop()
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         """
             delete all redirect urls
             stop all threads.

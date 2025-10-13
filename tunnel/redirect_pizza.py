@@ -11,7 +11,7 @@ import requests
 
 # REQUEST_URL = "https://duckdns.org/update/{domain}/{token}[/{ip_addr}]"
 
-def build_header(token: str) -> dict[str]:
+def build_header(token: str) -> dict[str, str]:
     request_headers = {
         'Authorization': F'Bearer {token}',
         'Content-Type': 'application/json',
@@ -19,7 +19,7 @@ def build_header(token: str) -> dict[str]:
     return request_headers
 
 
-def list_redirects(token, entries=100) -> bool:
+def list_redirects(token: str, entries: int = 100) -> bool:
     request_url = F'https://redirect.pizza/api/v1/redirects?page=1&per_page={entries}'
     response = requests.get(request_url, headers=build_header(token))
     return_code = response.status_code
@@ -34,7 +34,10 @@ def list_redirects(token, entries=100) -> bool:
     return False
 
 
-def create_redirect(token, src_url, dest_url, notes='', tag='') -> tuple:
+def create_redirect(
+    token: str, src_url: str,
+    dest_url: str, notes: str = '', tag: str = '',
+) -> tuple[bool, int | None]:
     request_url = 'https://redirect.pizza/api/v1/redirects'
     data = F"""{{
         "sources": [
@@ -73,7 +76,10 @@ def create_redirect(token, src_url, dest_url, notes='', tag='') -> tuple:
     return (False, return_pizza_id)
 
 
-def update_redirect(token, pizza_id, src_url, dest_url, notes='', tag='') -> bool:
+def update_redirect(
+    token: str, pizza_id: int, src_url: str,
+    dest_url: str, notes: str = '', tag: str = '',
+) -> bool:
     request_url = F'https://redirect.pizza/api/v1/redirects/{pizza_id}'
     data = """{{
         "sources": [
@@ -103,7 +109,7 @@ def update_redirect(token, pizza_id, src_url, dest_url, notes='', tag='') -> boo
     return False
 
 
-def delete_redirect(token, pizza_id) -> bool:
+def delete_redirect(token: str, pizza_id: int) -> bool:
     request_url = F'https://redirect.pizza/api/v1/redirects/{pizza_id}'
 
     response = requests.delete(request_url, headers=build_header(token))

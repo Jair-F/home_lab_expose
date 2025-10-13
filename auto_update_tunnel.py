@@ -2,6 +2,7 @@
 import signal
 import threading
 import time
+import types
 
 import box
 import yaml
@@ -20,7 +21,7 @@ DUCKDNS_SUBDOMAINS = []
 RUNNING = True
 
 
-def read_config():
+def read_config() -> None:
     global CONFIG, TUNNEL_COMMANDS
     with open('config/config.yaml', encoding='utf-8') as file:
         CONFIG = box.Box(yaml.safe_load(file))
@@ -47,7 +48,7 @@ if __name__ == '__main__':
             ),
         )
 
-    def shutdown_gracefully(signum, frame):
+    def shutdown_gracefully(signum: int, frame: types.FrameType | None) -> None:
         global RUNNING
         for t in tunnels:
             t.shutdown()
@@ -58,7 +59,7 @@ if __name__ == '__main__':
     signal.signal(signal.SIGTERM, shutdown_gracefully)
     signal.signal(signal.SIGINT, shutdown_gracefully)
 
-    def run_tunnel(t: tunnel_m.TunnelMonitor):
+    def run_tunnel(t: tunnel_m.TunnelMonitor) -> None:
         print('running tunnel blocking')
         t.run_blocking()
     for tunnel in tunnels:
