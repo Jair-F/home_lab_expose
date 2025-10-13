@@ -6,4 +6,11 @@ services:
     # ports:
     #   - 80:80
     volumes:
-      - ./config:/config
+      - ./config:/app/config
+
+    networks:
+      - server_network
+
+networks:
+  server_network:
+    external: true
