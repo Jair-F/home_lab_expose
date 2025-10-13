@@ -38,8 +38,8 @@ def read_config() -> None:
 
 if __name__ == '__main__':
     read_config()
-    tunnels = []
-    tunnel_threads = []
+    tunnels: list[tunnel_m.TunnelMonitor] = []
+    tunnel_threads: list[threading.Thread] = []
     for i, command in enumerate(TUNNEL_COMMANDS, start=0):
         tunnels.append(
             tunnel_m.TunnelMonitor(
