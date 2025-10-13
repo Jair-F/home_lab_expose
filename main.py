@@ -9,6 +9,7 @@ import yaml
 
 import tunnel.tunnel_monitor as tunnel_m
 from consts import REGEX_MATCH_URL
+from consts import VERSION
 from tunnel.duckdns import update_duckdns_ip
 from tunnel.resolve_dns import get_ip
 
@@ -36,6 +37,10 @@ def read_config() -> None:
 
 
 if __name__ == '__main__':
+    print('-------------------------------------------------------')
+    print(F'              home lab expose v{VERSION}              ')
+    print('-------------------------------------------------------')
+
     read_config()
     tunnels: list[tunnel_m.TunnelMonitor] = []
     tunnel_threads: list[threading.Thread] = []

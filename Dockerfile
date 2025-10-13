@@ -18,4 +18,4 @@ RUN pip3 install -r requirements.txt
 RUN chmod -R 777 *
 RUN env/install_cloudflare.sh
 
-ENTRYPOINT ["python3", "auto_update_tunnel.py", " ; $@"]
+ENTRYPOINT ["python3", "main.py", " ; $@"]
