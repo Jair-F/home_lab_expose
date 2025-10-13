@@ -1,7 +1,13 @@
 pizza_api_key : <key>
-
-local_host : localhost
-local_port : 80
-
 duckdns_token : <key>
-duckdns_domain : <subdomain>.duckdns.org
+duckdns_topdomain: <domain>.duckdns.org
+
+sites:
+  photos:
+    local_host : photos
+    local_port : 80
+    duckdns_subdomain : photos.<domain>.duckdns.org
+  nextcloud:
+    local_host : nextcloud
+    local_port : 80
+    duckdns_subdomain : nextcloud.<domain>.duckdns.org

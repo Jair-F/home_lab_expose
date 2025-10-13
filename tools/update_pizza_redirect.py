@@ -11,7 +11,7 @@ import requests
 
 # REQUEST_URL = "https://duckdns.org/update/{domain}/{token}[/{ip_addr}]"
 
-def build_header(token: str) -> str:
+def build_header(token: str) -> dict:
     request_headers = {
         'Authorization': F'Bearer {token}',
         'Content-Type': 'application/json',
@@ -28,9 +28,9 @@ def list_redirects(token, entries=100) -> bool:
             response = response.json()
             print(json.dumps(response, indent=2), end='\n\n')
         return True
-    else:
-        print(F'ERROR CODE: {response.status_code}')
-        print(response.text)
+
+    print(F'ERROR CODE: {response.status_code}')
+    print(response.text)
     return False
 
 
@@ -97,9 +97,9 @@ def update_redirect(token, pizza_id, src_url, dest_url, notes='', tag='') -> boo
             response = response.json()
             print(json.dumps(response, indent=2), end='\n\n')
         return True
-    else:
-        print(F'ERROR CODE: {return_code}')
-        print(response.text)
+
+    print(F'ERROR CODE: {return_code}')
+    print(response.text)
     return False
 
 
@@ -113,10 +113,9 @@ def delete_redirect(token, pizza_id) -> bool:
             response = response.json()
             print(json.dumps(response, indent=2), end='\n\n')
         return True
-    else:
-        print(F'ERROR CODE: {return_code}')
-        print(response.text)
 
+    print(F'ERROR CODE: {return_code}')
+    print(response.text)
     return False
 
 
