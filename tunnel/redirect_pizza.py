@@ -44,7 +44,7 @@ def create_redirect(
             "{src_url}"
         ],
         "destination": "{dest_url}",
-        "redirect_type": "permanent",
+        "redirect_type": "temporary",
         "uri_forwarding": true,
         "keep_query_string": true,
         "tracking": true,
@@ -86,7 +86,7 @@ def update_redirect(
             "{src_url}"
         ],
         "destination": "{dest_url}",
-        "redirect_type": "permanent",
+        "redirect_type": "temporary",
         "uri_forwarding": true,
         "keep_query_string": true,
         "tracking": true,
