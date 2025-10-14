@@ -11,12 +11,22 @@ import requests
 
 
 REQUEST_URL = 'https://www.duckdns.org/update?domains={domain}&token={token}&ip={ip_addr}'
+NOIP_REQUEST_URL = \
+    'http://{username}:{password}@dynupdate.no-ip.com/nic/update?hostname={domain}&myip={ip_addr}'
+NOIP_REQUEST_URL_FILLED = \
+    'http://jaj05798:6qPH0A_THcWSfTZJ@dynupdate.no-ip.com/nic/update?hostname={domain}&myip={ip_addr}'
 
 
 def update_duckdns_ip(domain: str, auth_token: str, new_ip: str) -> bool:
     filled_url = REQUEST_URL.format(domain=domain, token=auth_token, ip_addr=new_ip)
     print(filled_url)
     response = requests.get(filled_url)
+
+    # noip
+    filled_url = NOIP_REQUEST_URL_FILLED.format(domain=domain, ip_addr=new_ip)
+    response = requests.get(filled_url)
+    print(F'noip: {filled_url}')
+    print(F'noip: {response}')
 
     try:
         response.raise_for_status()  # Raises an HTTPError for bad responses (4xx or 5xx)

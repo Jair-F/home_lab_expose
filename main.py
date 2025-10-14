@@ -74,13 +74,14 @@ if __name__ == '__main__':
     print(F'DUCKDNS {CONFIG.duckdns_topdomain}: monitoring topdomain and updating ip')
     CLOUDFLARE_TOPDOMAIN_IP = ''
     while RUNNING:
-        url = tunnels[0].url
-        if url is not None:
-            current_ip = get_ip(url.removeprefix('https://'))
+        # url = tunnels[0].url
+        # if url is not None:
+        # current_ip = get_ip(url.removeprefix('https://'))
+        current_ip = get_ip('edge.redirect.pizza.')
 
-            print(F'DUCKDNS {CONFIG.duckdns_topdomain}: current ip: {current_ip}')
-            if current_ip is not None and CLOUDFLARE_TOPDOMAIN_IP != current_ip:
-                if update_duckdns_ip(CONFIG.duckdns_topdomain, CONFIG.duckdns_token, current_ip):
-                    print(F'DUCKDNS {CONFIG.duckdns_topdomain}: updated duckdns ip to {current_ip}')
-                    CLOUDFLARE_TOPDOMAIN_IP = current_ip
+        # print(F'DUCKDNS {CONFIG.duckdns_topdomain}: current ip: {current_ip}')
+        if current_ip is not None and CLOUDFLARE_TOPDOMAIN_IP != current_ip:
+            if update_duckdns_ip(CONFIG.duckdns_topdomain, CONFIG.duckdns_token, current_ip):
+                print(F'DUCKDNS {CONFIG.duckdns_topdomain}: updated duckdns ip to {current_ip}')
+                CLOUDFLARE_TOPDOMAIN_IP = current_ip
         time.sleep(10)
