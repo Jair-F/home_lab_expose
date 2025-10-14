@@ -7,8 +7,8 @@ sites:
   photos:
     local_host : photos
     local_port : 80
-    redirect_domain : photos.<domain>.duckdns.org
+    redirect_domain : photos.<domain>.ddns.net
   nextcloud:
     local_host : nextcloud
     local_port : 80
-    redirect_domain : nextcloud.<domain>.duckdns.org
+    redirect_domain : nextcloud.<domain>.ddns.net
