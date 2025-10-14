@@ -8,16 +8,17 @@ import box
 import yaml
 
 import tunnel.tunnel_monitor as tunnel_m
+from consts import PIZZA_REDIRECT_DOMAIN
 from consts import REGEX_MATCH_URL
 from consts import VERSION
-from tunnel.duckdns import update_noip_ip
+from tunnel.domain import update_noip_ip
 from tunnel.resolve_dns import get_ip
 
 
 CONFIG = None
 
 TUNNEL_COMMANDS = []
-DUCKDNS_SUBDOMAINS = []
+REDIRECT_DOMAINS = []
 RUNNING = True
 
 
@@ -33,7 +34,7 @@ def read_config() -> None:
                 'cloudflared', 'tunnel', '--no-tls-verify',
                 '--url', F'{site.local_host}:{site.local_port}',
             ])
-            DUCKDNS_SUBDOMAINS.append(site.duckdns_subdomain)
+            REDIRECT_DOMAINS.append(site.redirect_domain)
 
 
 if __name__ == '__main__':
@@ -48,7 +49,7 @@ if __name__ == '__main__':
         tunnels.append(
             tunnel_m.TunnelMonitor(
                 command, REGEX_MATCH_URL,
-                DUCKDNS_SUBDOMAINS[i], CONFIG.pizza_api_key,
+                REDIRECT_DOMAINS[i], CONFIG.pizza_api_key,
             ),
         )
 
@@ -73,12 +74,8 @@ if __name__ == '__main__':
 
     CLOUDFLARE_TOPDOMAIN_IP = ''
     while RUNNING:
-        # url = tunnels[0].url
-        # if url is not None:
-        # current_ip = get_ip(url.removeprefix('https://'))
-        current_ip = get_ip('edge.redirect.pizza.')
+        current_ip = get_ip(PIZZA_REDIRECT_DOMAIN)
 
-        # print(F'DUCKDNS {CONFIG.duckdns_topdomain}: current ip: {current_ip}')
         if current_ip is not None and CLOUDFLARE_TOPDOMAIN_IP != current_ip:
             if update_noip_ip(
                 CONFIG.noip_domain, CONFIG.noip_username,

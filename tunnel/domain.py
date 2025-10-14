@@ -10,13 +10,13 @@ import requests
 # https://duckdns.org/update/{YOURDOMAIN}/{YOURTOKEN}[/{YOURIPADDRESS}]
 
 
-REQUEST_URL = 'https://www.duckdns.org/update?domains={domain}&token={token}&ip={ip_addr}'
-NOIP_REQUEST_URL = \
+REQUEST_URL_DUCKDNS = 'https://www.duckdns.org/update?domains={domain}&token={token}&ip={ip_addr}'
+REQUEST_URL_NOIP = \
     'http://{username}:{password}@dynupdate.no-ip.com/nic/update?hostname={domain}&myip={ip_addr}'
 
 
 def update_duckdns_ip(domain: str, auth_token: str, new_ip: str) -> bool:
-    filled_url = REQUEST_URL.format(domain=domain, token=auth_token, ip_addr=new_ip)
+    filled_url = REQUEST_URL_DUCKDNS.format(domain=domain, token=auth_token, ip_addr=new_ip)
     print(filled_url)
     response = requests.get(filled_url)
 
@@ -31,7 +31,10 @@ def update_duckdns_ip(domain: str, auth_token: str, new_ip: str) -> bool:
 
 
 def update_noip_ip(domain: str, username: str, password: str, new_ip: str) -> bool:
-    filled_url = NOIP_REQUEST_URL.format(domain=domain, username=username, password=password, ip_addr=new_ip)
+    filled_url = REQUEST_URL_NOIP.format(
+        domain=domain, username=username,
+        password=password, ip_addr=new_ip,
+    )
     response = requests.get(filled_url)
 
     try:

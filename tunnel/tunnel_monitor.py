@@ -14,7 +14,7 @@ class TunnelMonitor():
     _url_regex_match: str
     url: str | None
     url_changed: bool
-    _duckdns_subdomain: str
+    _redirect_domain: str
     _process: subprocess.Popen[str] | None
     _stderr_watch_thread: Optional[threading.Thread] | None
     _run: bool
@@ -24,13 +24,13 @@ class TunnelMonitor():
 
     def __init__(
         self, tunnel_command: list[str], url_regex_match: str,
-        duckdns_subdomain: str, pizza_api_key: str,
+        redirect_domain: str, pizza_api_key: str,
     ):
         self._tunnel_command = tunnel_command
         self._url_regex_match = url_regex_match
         self.url = None
         self.url_changed = False
-        self._duckdns_subdomain = duckdns_subdomain
+        self._redirect_domain = redirect_domain
         self._process = None
         self._stderr_watch_thread = None
         self._run = True
@@ -58,7 +58,7 @@ class TunnelMonitor():
         )
         self._stderr_watch_thread.start()
         self._run = True
-        print(F'TUNNEL {self._duckdns_subdomain}: started')
+        print(F'TUNNEL {self._redirect_domain}: started')
 
     def process_is_running(self) -> bool:
         if self._process is None:
@@ -71,7 +71,7 @@ class TunnelMonitor():
             returncode = self._process.wait(timeout=2)
             self._process.kill()
             print(
-                F'TUNNEL {self._duckdns_subdomain}: ',
+                F'TUNNEL {self._redirect_domain}: ',
                 F'process terminated with returncode: {returncode}',
             )
 
@@ -82,10 +82,10 @@ class TunnelMonitor():
         self._process = None
         self._stderr_watch_thread = None
         self._run = False
-        print(F'TUNNEL {self._duckdns_subdomain}: stopped')
+        print(F'TUNNEL {self._redirect_domain}: stopped')
 
     def _restart(self) -> None:
-        print(F'TUNNEL {self._duckdns_subdomain}: restarting')
+        print(F'TUNNEL {self._redirect_domain}: restarting')
         self._stop()
         self._start()
 
@@ -105,7 +105,7 @@ class TunnelMonitor():
             if found_url != self.url:
                 self.url = found_url
                 self.url_changed = True
-                print(F'TUNNEL {self._duckdns_subdomain}: found new url: {self.url}')
+                print(F'TUNNEL {self._redirect_domain}: found new url: {self.url}')
 
     def _get_url(self) -> str | None:
         self.url_changed = False
@@ -117,7 +117,7 @@ class TunnelMonitor():
             while not success:
                 (success, pizza_id) = pizza.create_redirect(
                     self._pizza_api_key,
-                    self._duckdns_subdomain, new_url, notes='home_lab_expose',
+                    self._redirect_domain, new_url, notes='home_lab_expose',
                 )
                 if not success:
                     print(F'trying to delete remaining redirect with id: {pizza_id}')
@@ -127,7 +127,7 @@ class TunnelMonitor():
         else:
             while not pizza.update_redirect(
                 self._pizza_api_key, self.pizza_id,
-                self._duckdns_subdomain, new_url, notes='home_lab_expose',
+                self._redirect_domain, new_url, notes='home_lab_expose',
             ):
                 time.sleep(1)
 
@@ -137,7 +137,7 @@ class TunnelMonitor():
         try:
             while self._run:
                 if not self.process_is_running():
-                    print(F'TUNNEL {self._duckdns_subdomain}: not running - restarting')
+                    print(F'TUNNEL {self._redirect_domain}: not running - restarting')
                     self._restart()
 
                 output = self._read_stderr()
@@ -146,7 +146,7 @@ class TunnelMonitor():
 
                 if self.url_changed:
                     print(
-                        F'TUNNEL {self._duckdns_subdomain}: ',
+                        F'TUNNEL {self._redirect_domain}: ',
                         'updating redirect to new url: ', end='',
                     )
                     self._change_url(self._get_url())
@@ -162,9 +162,9 @@ class TunnelMonitor():
         """
         print('shutting down...')
         if self.pizza_id is not None:
-            print(F'TUNNEL {self._duckdns_subdomain}: deleting pizza : {self.pizza_id}')
+            print(F'TUNNEL {self._redirect_domain}: deleting pizza : {self.pizza_id}')
             if pizza.delete_redirect(self._pizza_api_key, self.pizza_id):
-                print(F'TUNNEL {self._duckdns_subdomain}: success deleting pizza: {self.pizza_id}')
+                print(F'TUNNEL {self._redirect_domain}: success deleting pizza: {self.pizza_id}')
             self.pizza_id = None
         self._stop()
         print('byyye...')

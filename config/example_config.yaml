@@ -1,6 +1,4 @@
 pizza_api_key : <key>
-duckdns_token : <key>
-duckdns_topdomain: <domain>.duckdns.org
 noip_domain: <domain>
 noip_username: <username>
 noip_password: <password>
@@ -9,8 +7,8 @@ sites:
   photos:
     local_host : photos
     local_port : 80
-    duckdns_subdomain : photos.<domain>.duckdns.org
+    redirect_domain : photos.<domain>.duckdns.org
   nextcloud:
     local_host : nextcloud
     local_port : 80
-    duckdns_subdomain : nextcloud.<domain>.duckdns.org
+    redirect_domain : nextcloud.<domain>.duckdns.org
