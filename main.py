@@ -10,7 +10,7 @@ import yaml
 import tunnel.tunnel_monitor as tunnel_m
 from consts import REGEX_MATCH_URL
 from consts import VERSION
-from tunnel.duckdns import update_duckdns_ip
+from tunnel.duckdns import update_noip_ip
 from tunnel.resolve_dns import get_ip
 
 
@@ -71,7 +71,6 @@ if __name__ == '__main__':
         thread.start()
         tunnel_threads.append(thread)
 
-    print(F'DUCKDNS {CONFIG.duckdns_topdomain}: monitoring topdomain and updating ip')
     CLOUDFLARE_TOPDOMAIN_IP = ''
     while RUNNING:
         # url = tunnels[0].url
@@ -81,7 +80,10 @@ if __name__ == '__main__':
 
         # print(F'DUCKDNS {CONFIG.duckdns_topdomain}: current ip: {current_ip}')
         if current_ip is not None and CLOUDFLARE_TOPDOMAIN_IP != current_ip:
-            if update_duckdns_ip(CONFIG.duckdns_topdomain, CONFIG.duckdns_token, current_ip):
-                print(F'DUCKDNS {CONFIG.duckdns_topdomain}: updated duckdns ip to {current_ip}')
+            if update_noip_ip(
+                CONFIG.noip_domain, CONFIG.noip_username,
+                CONFIG.noip_password, current_ip,
+            ):
+                print(F'NOIP {CONFIG.noip_domain}: updated noip ip to {current_ip}')
                 CLOUDFLARE_TOPDOMAIN_IP = current_ip
         time.sleep(10)

@@ -1,6 +1,9 @@
 pizza_api_key : <key>
 duckdns_token : <key>
 duckdns_topdomain: <domain>.duckdns.org
+noip_domain: <domain>
+noip_username: <username>
+noip_password: <password>
 
 sites:
   photos:
