@@ -5,10 +5,10 @@ noip_password: <password>
 
 sites:
   photos:
-    local_host : photos
+    local_host : http://photos
     local_port : 80
     redirect_domain : photos.<domain>.ddns.net
   nextcloud:
-    local_host : nextcloud
+    local_host : http://nextcloud
     local_port : 80
     redirect_domain : nextcloud.<domain>.ddns.net
