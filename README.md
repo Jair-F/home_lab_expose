@@ -45,6 +45,7 @@ Expose your home lab services securely to the internet using NoIP DNS and the fr
     - Register at [NoIP](https://www.noip.com/) and create your hostname (e.g., `yourdomain.ddns.net`).
     - Configure your router or device to update the NoIP DNS record, or use the provided scripts.
     - Example DNS configuration: ![NoIP DNS Configuration](img/noip_dns_configuration.png)
+        - it could be that NoIP will not let you add the wildcard domain at the first try. add a normal domain and then edit it and add the checkbox at Wildcard.
 
 2. **Configure the service**
     - Edit `config/example_config.yaml` with your NoIP credentials, API keys, and desired domains.
